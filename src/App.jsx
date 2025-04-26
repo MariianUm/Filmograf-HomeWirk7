@@ -7,6 +7,7 @@ import Favorites from './pages/Favorites';
 import AddMovie from './pages/AddMovie';
 import MovieDetails from './pages/MovieDetails';
 import EditMovie from './pages/EditMovie';
+import NotFound from './pages/NotFound';
 
 function App() {
   const [movies, setMovies] = useState([
@@ -133,7 +134,7 @@ function App() {
       <Router>
         <Box minH="100vh" bg="gray.50">
           <Navbar />
-          <Box as="main" pt={20} pb={10}>
+          <Box as="main" pt="80px" pb={10} px={4}>
             <Routes>
               <Route path="/" element={
                 <Home 
@@ -164,6 +165,7 @@ function App() {
                   onUpdate={updateMovie} 
                 />
               } />
+              <Route path="*" element={<NotFound />} />
             </Routes>
           </Box>
         </Box>

@@ -1,5 +1,9 @@
-import { Flex, Link, Box, Text } from '@chakra-ui/react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Flex, Box, Text, IconButton } from '@chakra-ui/react';
+import { NavLink } from 'react-router-dom';
+import { FaFilm, FaHeart, FaPlus } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+
+const MotionBox = motion(Box);
 
 export default function Navbar() {
   return (
@@ -16,36 +20,62 @@ export default function Navbar() {
       zIndex="sticky"
       boxShadow="md"
     >
-      <Link as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
-        <Text fontSize="xl" fontWeight="bold" color="white">
-          Фильмограф
-        </Text>
-      </Link>
-      <Flex gap={6}>
-        <Link 
-          as={RouterLink} 
-          to="/" 
-          color="white"
-          _hover={{ textDecoration: 'underline' }}
+      <NavLink to="/" style={{ textDecoration: 'none' }}>
+        <Flex align="center" gap={2}>
+          <MotionBox
+            animate={{ rotate: [0, 15, 0] }}
+            transition={{ repeat: Infinity, duration: 3 }}
+          >
+            <FaFilm color="white" size="24px" />
+          </MotionBox>
+          <Text fontSize="xl" fontWeight="bold" color="white">
+            Фильмограф
+          </Text>
+        </Flex>
+      </NavLink>
+
+      <Flex gap={{ base: 3, md: 6 }}>
+        <NavLink 
+          to="/"
+          style={({ isActive }) => ({
+            color: 'white',
+            fontWeight: isActive ? 'bold' : 'normal',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          })}
         >
-          Все фильмы
-        </Link>
-        <Link 
-          as={RouterLink} 
-          to="/favorites" 
-          color="white"
-          _hover={{ textDecoration: 'underline' }}
+          <FaFilm />
+          <Text display={{ base: 'none', md: 'block' }}>Все фильмы</Text>
+        </NavLink>
+        
+        <NavLink 
+          to="/favorites"
+          style={({ isActive }) => ({
+            color: 'white',
+            fontWeight: isActive ? 'bold' : 'normal',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          })}
         >
-          Избранное
-        </Link>
-        <Link 
-          as={RouterLink} 
-          to="/add-movie" 
-          color="white"
-          _hover={{ textDecoration: 'underline' }}
+          <FaHeart />
+          <Text display={{ base: 'none', md: 'block' }}>Избранное</Text>
+        </NavLink>
+        
+        <NavLink 
+          to="/add-movie"
+          style={({ isActive }) => ({
+            color: 'white',
+            fontWeight: isActive ? 'bold' : 'normal',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          })}
         >
-          Добавить фильм
-        </Link>
+          <FaPlus />
+          <Text display={{ base: 'none', md: 'block' }}>Добавить</Text>
+        </NavLink>
       </Flex>
     </Flex>
   );
