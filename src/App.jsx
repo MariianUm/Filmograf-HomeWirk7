@@ -116,6 +116,7 @@ function App() {
     setMovies(movies.map(movie => 
       movie.id === id ? { ...movie, isFavorite: !movie.isFavorite } : movie
     ));
+    console.log('Изменен статус избранного для фильма с ID:', id); // Отладочный вывод
   };
 
   const addMovie = (newMovie) => {
@@ -127,17 +128,20 @@ function App() {
       rating: 3
     };
     setMovies([...movies, movie]);
+    console.log('Добавлен фильм:', movie); // Отладочный вывод
   };
 
   const updateMovie = (updatedMovie) => {
     setMovies(movies.map(movie => 
       movie.id === updatedMovie.id ? updatedMovie : movie
     ));
+    console.log('Обновлен фильм:', updatedMovie); // Отладочный вывод
   };
 
   const deleteMovie = (id) => {
     if (window.confirm('Вы уверены, что хотите удалить этот фильм?')) {
       setMovies(movies.filter(movie => movie.id !== id));
+      console.log('Удален фильм с ID:', id); // Отладочный вывод
     }
   };
 

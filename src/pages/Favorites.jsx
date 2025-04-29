@@ -1,27 +1,31 @@
 import { 
   Box, Heading, VStack, HStack, Text, Button, 
-  Badge, Flex, Alert, AlertIcon
+  Badge, Flex, Alert, AlertIcon, Spinner
 } from '@chakra-ui/react';
-import { FaTrash, FaHeart, FaArrowLeft, FaStar } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { FaTrash, FaHeart, FaStar } from 'react-icons/fa';
+import { useEffect, useState } from 'react';
 
 export default function Favorites({ movies, onToggleFavorite, onDelete }) {
-  const handleRemove = (id) => {
-    if (window.confirm('Удалить фильм из избранного?')) {
-      onToggleFavorite(id);
-    }
-  };
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Flex justify="center" mt={20}>
+        <Spinner size="xl" />
+      </Flex>
+    );
+  }
 
   return (
     <Box py={8} px={{ base: 4, md: 8 }}>
-      <Flex justify="space-between" align="center" mb={8}>
-        <Heading as="h1" size="xl">
-          Избранное
-        </Heading>
-        <Button as={Link} to="/" leftIcon={<FaArrowLeft />} variant="outline">
-          Назад
-        </Button>
-      </Flex>
+      <Heading as="h1" size="xl" mb={8}>
+        Избранное
+      </Heading>
 
       {movies.length > 0 ? (
         <VStack spacing={4} align="stretch">
@@ -41,17 +45,13 @@ export default function Favorites({ movies, onToggleFavorite, onDelete }) {
                   </Heading>
                   <HStack spacing={2} mb={2}>
                     <Badge colorScheme="blue">{movie.genre}</Badge>
-                    <Text fontSize="sm" color="gray.500">
-                      <FaClock style={{ display: 'inline', marginRight: '4px' }} />
-                      {movie.duration}
-                    </Text>
+                    <Text fontSize="sm">{movie.duration}</Text>
                   </HStack>
                   <Flex align="center">
                     {[...Array(5)].map((_, i) => (
                       <FaStar 
                         key={i} 
-                        color={i < movie.rating ? '#ffc107' : '#e4e5e9'} 
-                        size={14}
+                        color={i < movie.rating ? 'gold' : 'lightgray'} 
                       />
                     ))}
                   </Flex>
@@ -60,9 +60,8 @@ export default function Favorites({ movies, onToggleFavorite, onDelete }) {
                   <Button
                     size="sm"
                     colorScheme="red"
-                    variant="ghost"
                     leftIcon={<FaTrash />}
-                    onClick={() => handleRemove(movie.id)}
+                    onClick={() => onDelete(movie.id)}
                   >
                     Удалить
                   </Button>
@@ -70,6 +69,7 @@ export default function Favorites({ movies, onToggleFavorite, onDelete }) {
                     size="sm"
                     colorScheme="pink"
                     leftIcon={<FaHeart />}
+                    onClick={() => onToggleFavorite(movie.id)}
                   >
                     В избранном
                   </Button>
