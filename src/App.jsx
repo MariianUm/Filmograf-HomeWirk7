@@ -19,7 +19,8 @@ function App() {
       year: 1999,
       isFavorite: true,
       poster: '/images/matrix.png',
-      description: 'Фильм про синюю и красную пилюлю. Научно-фантастический боевик о хакере Нео, который узнает, что мир - это компьютерная симуляция.'
+      description: 'Фильм про синюю и красную пилюлю. Научно-фантастический боевик о хакере Нео, который узнает, что мир - это компьютерная симуляция.',
+      rating: 5
     },
     {
       id: 2,
@@ -29,7 +30,8 @@ function App() {
       year: 2006,
       isFavorite: false,
       poster: '/images/departed.png',
-      description: 'Криминальная драма о полицейском под прикрытии и гангстере, который работает на полицию.'
+      description: 'Криминальная драма о полицейском под прикрытии и гангстере, который работает на полицию.',
+      rating: 4
     },
     {
       id: 3,
@@ -39,7 +41,8 @@ function App() {
       year: 2015,
       isFavorite: false,
       poster: '/images/madmax.jpg',
-      description: 'Постапокалиптический боевик о бывшем полицейском Максе, который помогает группе беглян.'
+      description: 'Постапокалиптический боевик о бывшем полицейском Максе, который помогает группе беглян.',
+      rating: 4
     },
     {
       id: 4,
@@ -49,7 +52,8 @@ function App() {
       year: 2000,
       isFavorite: false,
       poster: '/images/gladiator.jpg',
-      description: 'История римского генерала, который становится гладиатором, чтобы отомстить за убийство семьи.'
+      description: 'История римского генерала, который становится гладиатором, чтобы отомстить за убийство семьи.',
+      rating: 5
     },
     {
       id: 5,
@@ -59,7 +63,8 @@ function App() {
       year: 2019,
       isFavorite: true,
       poster: '/images/gentlemen.jpg',
-      description: 'Криминальная комедия о британском наркобароне, который хочет продать свой бизнес.'
+      description: 'Криминальная комедия о британском наркобароне, который хочет продать свой бизнес.',
+      rating: 5
     },
     {
       id: 6,
@@ -69,7 +74,8 @@ function App() {
       year: 2019,
       isFavorite: true,
       poster: '/images/hollywood.png',
-      description: 'История актера и его дублера на фоне изменений в Голливуде конца 1960-х годов.'
+      description: 'История актера и его дублера на фоне изменений в Голливуде конца 1960-х годов.',
+      rating: 4
     },
     {
       id: 7,
@@ -79,7 +85,8 @@ function App() {
       year: 2009,
       isFavorite: false,
       poster: '/images/proposal.jpg',
-      description: 'Романтическая комедия о редакторе, которая вынуждена заключить фиктивный брак со своим помощником.'
+      description: 'Романтическая комедия о редакторе, которая вынуждена заключить фиктивный брак со своим помощником.',
+      rating: 3
     },
     {
       id: 8,
@@ -89,7 +96,8 @@ function App() {
       year: 2004,
       isFavorite: true,
       poster: '/images/milliondollar.png',
-      description: 'Драма о девушке из бедного квартала, которая становится боксером под руководством старого тренера.'
+      description: 'Драма о девушке из бедного квартала, которая становится боксером под руководством старого тренера.',
+      rating: 5
     },
     {
       id: 9,
@@ -99,7 +107,8 @@ function App() {
       year: 2011,
       isFavorite: false,
       poster: '/images/larrycrowne.jpg',
-      description: 'Комедия о мужчине средних лет, который после увольнения начинает новую жизнь, поступив в колледж.'
+      description: 'Комедия о мужчине средних лет, который после увольнения начинает новую жизнь, поступив в колледж.',
+      rating: 3
     }
   ]);
 
@@ -114,7 +123,8 @@ function App() {
       ...newMovie,
       id: Date.now(),
       isFavorite: false,
-      poster: newMovie.poster || '/images/default.jpg'
+      poster: newMovie.poster || '/images/default.jpg',
+      rating: 3
     };
     setMovies([...movies, movie]);
   };
@@ -126,7 +136,9 @@ function App() {
   };
 
   const deleteMovie = (id) => {
-    setMovies(movies.filter(movie => movie.id !== id));
+    if (window.confirm('Вы уверены, что хотите удалить этот фильм?')) {
+      setMovies(movies.filter(movie => movie.id !== id));
+    }
   };
 
   return (
@@ -134,7 +146,7 @@ function App() {
       <Router>
         <Box minH="100vh" bg="gray.50">
           <Navbar />
-          <Box as="main" pt="80px" pb={10} px={4}>
+          <Box as="main" pt="80px" pb={10} px={{ base: 4, md: 8 }}>
             <Routes>
               <Route path="/" element={
                 <Home 
