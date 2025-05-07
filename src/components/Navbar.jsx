@@ -1,3 +1,4 @@
+// Navbar.jsx
 import { Flex, Box, Text, IconButton } from '@chakra-ui/react';
 import { NavLink } from 'react-router-dom';
 import { FaFilm, FaHeart, FaPlus } from 'react-icons/fa';
@@ -9,7 +10,7 @@ export default function Navbar() {
   return (
     <Flex
       as="nav"
-      bg="blue.600"
+      bg="pink.600" // Изменено на розовый
       p={4}
       justifyContent="space-between"
       alignItems="center"

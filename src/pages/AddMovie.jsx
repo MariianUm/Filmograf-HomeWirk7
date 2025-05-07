@@ -1,3 +1,4 @@
+// AddMovie.jsx
 import { 
   Box, 
   Heading, 
@@ -15,29 +16,26 @@ import {
 } from '@chakra-ui/react';
 import { FaPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 
 const genres = ['Боевик', 'Триллер', 'Комедия', 'Драма'];
 
 export default function AddMovie({ onAddMovie }) {
-  const [formData, setFormData] = useState({
-    title: '',
-    genre: 'Боевик',
-    duration: '',
-    description: '',
-    poster: ''
+  const { register, handleSubmit, control, formState: { errors } } = useForm({
+    defaultValues: {
+      title: '',
+      genre: 'Боевик',
+      duration: '',
+      description: '',
+      poster: ''
+    }
   });
+  
   const toast = useToast();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.title || !formData.duration) {
+  const onSubmit = (data) => {
+    if (!data.title || !data.duration) {
       toast({
         title: 'Ошибка',
         description: 'Заполните обязательные поля',
@@ -49,8 +47,8 @@ export default function AddMovie({ onAddMovie }) {
     }
 
     onAddMovie({
-      ...formData,
-      duration: `${formData.duration} мин.`,
+      ...data,
+      duration: `${data.duration} мин.`,
       year: new Date().getFullYear()
     });
 
@@ -66,77 +64,98 @@ export default function AddMovie({ onAddMovie }) {
 
   return (
     <Box py={8} px={{ base: 4, md: 8 }} maxW="800px" mx="auto">
-      <Heading as="h1" size="xl" mb={8} textAlign="center">
+      <Heading as="h1" size="xl" mb={8} textAlign="center" color="pink.600">
         Добавить фильм
       </Heading>
 
-      <Box as="form" onSubmit={handleSubmit} bg="white" p={6} borderRadius="lg" boxShadow="md">
+      <Box as="form" onSubmit={handleSubmit(onSubmit)} bg="white" p={6} borderRadius="lg" boxShadow="md">
         <VStack spacing={6}>
-          <FormControl isRequired>
-            <FormLabel>Название фильма</FormLabel>
+          <FormControl isInvalid={!!errors.title}>
+            <FormLabel color="pink.600">Название фильма</FormLabel>
             <Input
-              name="title"
-              value={formData.title}
-              onChange={handleChange}
+              {...register('title', { required: 'Обязательное поле' })}
               placeholder="Например: Матрица"
+              focusBorderColor="pink.400"
             />
           </FormControl>
 
-          <FormControl isRequired>
-            <FormLabel>Жанр</FormLabel>
-            <RadioGroup 
+          <FormControl>
+            <FormLabel color="pink.600">Жанр</FormLabel>
+            <Controller
               name="genre"
-              value={formData.genre}
-              onChange={(value) => setFormData({...formData, genre: value})}
-            >
-              <HStack spacing={4}>
-                {genres.map(genre => (
-                  <Radio key={genre} value={genre}>{genre}</Radio>
-                ))}
-              </HStack>
-            </RadioGroup>
+              control={control}
+              render={({ field }) => (
+                <RadioGroup {...field}>
+                  <HStack spacing={4}>
+                    {genres.map(genre => (
+                      <Radio 
+                        key={genre} 
+                        value={genre}
+                        colorScheme="pink"
+                        borderColor="pink.200"
+                      >
+                        {genre}
+                      </Radio>
+                    ))}
+                  </HStack>
+                </RadioGroup>
+              )}
+            />
           </FormControl>
 
-          <FormControl isRequired>
-            <FormLabel>Длительность (минут)</FormLabel>
+          <FormControl isInvalid={!!errors.duration}>
+            <FormLabel color="pink.600">Длительность (минут)</FormLabel>
             <Input
               type="number"
-              name="duration"
-              value={formData.duration}
-              onChange={handleChange}
+              {...register('duration', { 
+                required: 'Обязательное поле',
+                min: { value: 1, message: 'Минимум 1 минута' }
+              })}
               placeholder="Например: 136"
+              focusBorderColor="pink.400"
             />
           </FormControl>
 
           <FormControl>
-            <FormLabel>Описание</FormLabel>
+            <FormLabel color="pink.600">Описание</FormLabel>
             <Textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
+              {...register('description')}
               placeholder="Описание фильма..."
               rows={5}
+              focusBorderColor="pink.400"
             />
           </FormControl>
 
           <FormControl>
-            <FormLabel>Постер (URL)</FormLabel>
-            <Input
+            <FormLabel color="pink.600">Постер (URL)</FormLabel>
+            <Controller
               name="poster"
-              value={formData.poster}
-              onChange={handleChange}
-              placeholder="Ссылка на изображение"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ссылка на изображение"
+                  focusBorderColor="pink.400"
+                />
+              )}
             />
           </FormControl>
 
           <Flex justify="flex-end" w="full" gap={4}>
-            <Button variant="outline" onClick={() => navigate('/')}>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/')}
+              color="pink.600"
+              borderColor="pink.200"
+            >
               Отмена
             </Button>
             <Button 
-              colorScheme="blue" 
+              colorScheme="pink" 
               type="submit" 
               leftIcon={<FaPlus />}
+              bg="pink.500"
+              _hover={{ bg: 'pink.600' }}
             >
               Добавить фильм
             </Button>

@@ -10,7 +10,7 @@ export default function NotFound() {
       <Text fontSize="xl" mb={6}>
         Страница не найдена
       </Text>
-      <Button as={Link} to="/" colorScheme="blue">
+      <Button as={Link} to="/" colorScheme="pink">
         На главную
       </Button>
     </Box>

@@ -1,3 +1,4 @@
+// theme.js
 import { extendTheme } from '@chakra-ui/react';
 
 const theme = extendTheme({
@@ -11,8 +12,20 @@ const theme = extendTheme({
   },
   colors: {
     brand: {
-      500: '#3182ce',
-      600: '#2b6cb0',
+      500: '#ED64A6', // Основной розовый
+      600: '#D53F8C', // Темно-розовый
+    },
+  },
+  components: {
+    Button: {
+      variants: {
+        solid: {
+          bg: 'brand.500',
+          _hover: {
+            bg: 'brand.600',
+          },
+        },
+      },
     },
   },
 });

@@ -65,7 +65,7 @@ export default function MovieDetails({ movies, onToggleFavorite, onDelete }) {
         <Button 
           as={Link} 
           to="/" 
-          colorScheme="blue"
+          colorScheme="pink"
           size="lg"
           leftIcon={<FaArrowLeft />}
         >
@@ -108,7 +108,7 @@ export default function MovieDetails({ movies, onToggleFavorite, onDelete }) {
 
         <Box flex="1">
           <HStack spacing={4} mb={6} flexWrap="wrap">
-            <Badge colorScheme="blue" fontSize="md" px={3} py={1}>
+            <Badge colorScheme="pink" fontSize="md" px={3} py={1}>
               {movie.genre}
             </Badge>
             <Text fontSize="lg" fontWeight="medium">
@@ -127,7 +127,7 @@ export default function MovieDetails({ movies, onToggleFavorite, onDelete }) {
 
           <VStack align="start" spacing={4}>
             <Button
-              colorScheme="blue"
+              colorScheme="pink"
               leftIcon={<FaEdit />}
               onClick={() => navigate(`/edit-movie/${movie.id}`)}
               size="lg"

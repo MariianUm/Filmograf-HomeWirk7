@@ -1,3 +1,4 @@
+// EditMovie.jsx
 import { 
   Box, 
   Heading, 
@@ -18,7 +19,8 @@ import {
 } from '@chakra-ui/react';
 import { FaSave, FaArrowLeft, FaTrash } from 'react-icons/fa';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+import { useForm, Controller } from 'react-hook-form';
 
 const genres = ['Боевик', 'Триллер', 'Комедия', 'Драма'];
 
@@ -26,91 +28,39 @@ export default function EditMovie({ movies, onUpdate }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const toast = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [movie, setMovie] = useState(null);
-  const [formData, setFormData] = useState({
-    title: '',
-    genre: 'Боевик',
-    duration: '',
-    description: '',
-    poster: ''
-  });
-  const [errors, setErrors] = useState({});
+  const { 
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset
+  } = useForm();
+
+  const movie = movies.find(m => m.id === Number(id));
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const foundMovie = movies.find(m => m.id === Number(id));
-      setMovie(foundMovie);
-      
-      if (foundMovie) {
-        setFormData({
-          title: foundMovie.title,
-          genre: foundMovie.genre,
-          duration: foundMovie.duration.replace(' мин.', ''),
-          description: foundMovie.description,
-          poster: foundMovie.poster
-        });
-      }
-      
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [id, movies]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-    
-    if (errors[name]) {
-      setErrors({ ...errors, [name]: '' });
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.title.trim()) {
-      newErrors.title = 'Название обязательно';
-    }
-    
-    if (!formData.duration) {
-      newErrors.duration = 'Укажите длительность';
-    } else if (isNaN(formData.duration)) {
-      newErrors.duration = 'Должно быть числом';
-    } else if (formData.duration <= 0) {
-      newErrors.duration = 'Длительность должна быть положительной';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      toast({
-        title: 'Ошибка валидации',
-        description: 'Проверьте правильность заполнения полей',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
+    if (movie) {
+      reset({
+        title: movie.title,
+        genre: movie.genre,
+        duration: movie.duration.replace(' мин.', ''),
+        description: movie.description,
+        poster: movie.poster
       });
-      return;
     }
+  }, [movie, reset]);
 
+  const onSubmit = (data) => {
     onUpdate({
-      ...formData,
+      ...data,
       id: Number(id),
-      duration: `${formData.duration} мин.`,
+      duration: `${data.duration} мин.`,
       isFavorite: movie.isFavorite,
       year: movie.year
     });
 
     toast({
       title: 'Фильм обновлен',
-      description: `${formData.title} успешно сохранен`,
+      description: `${data.title} успешно сохранен`,
       status: 'success',
       duration: 3000,
       isClosable: true,
@@ -119,27 +69,19 @@ export default function EditMovie({ movies, onUpdate }) {
     navigate(`/movie/${id}`);
   };
 
-  if (isLoading) {
-    return (
-      <Flex justify="center" align="center" minH="50vh">
-        <Spinner size="xl" color="blue.500" />
-      </Flex>
-    );
-  }
-
   if (!movie) {
     return (
       <Box textAlign="center" py={20} px={4}>
-        <Heading as="h2" size="lg" mb={4} color="gray.700">
+        <Heading as="h2" size="lg" mb={4} color="pink.600">
           Фильм не найден
         </Heading>
-        <Text fontSize="lg" mb={6} color="gray.500">
+        <Text fontSize="lg" mb={6} color="pink.500">
           Невозможно редактировать — фильм не существует или был удалён
         </Text>
         <Button 
           as="a"
           href="/"
-          colorScheme="blue"
+          colorScheme="pink"
           size="lg"
           leftIcon={<FaArrowLeft />}
         >
@@ -152,13 +94,15 @@ export default function EditMovie({ movies, onUpdate }) {
   return (
     <Box py={8} px={{ base: 4, md: 8 }} maxW="800px" mx="auto">
       <Flex justify="space-between" align="center" mb={8}>
-        <Heading as="h1" size="xl" textAlign="center">
+        <Heading as="h1" size="xl" textAlign="center" color="pink.600">
           Редактировать {movie.title}
         </Heading>
         <Button
           onClick={() => navigate(`/movie/${id}`)}
           leftIcon={<FaArrowLeft />}
           variant="outline"
+          color="pink.600"
+          borderColor="pink.200"
         >
           Назад
         </Button>
@@ -166,7 +110,7 @@ export default function EditMovie({ movies, onUpdate }) {
 
       <Box 
         as="form" 
-        onSubmit={handleSubmit} 
+        onSubmit={handleSubmit(onSubmit)} 
         bg="white" 
         p={6} 
         borderRadius="lg" 
@@ -174,75 +118,105 @@ export default function EditMovie({ movies, onUpdate }) {
       >
         <VStack spacing={6}>
           <FormControl isInvalid={!!errors.title}>
-            <FormLabel>Название фильма</FormLabel>
-            <Input
+            <FormLabel color="pink.600">Название фильма</FormLabel>
+            <Controller
               name="title"
-              value={formData.title}
-              onChange={handleChange}
-              placeholder="Например: Матрица"
-              size="lg"
+              control={control}
+              rules={{ required: 'Обязательное поле' }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Например: Матрица"
+                  focusBorderColor="pink.400"
+                />
+              )}
             />
             {errors.title && (
               <Alert status="error" mt={2} borderRadius="md">
                 <AlertIcon />
-                {errors.title}
+                {errors.title.message}
               </Alert>
             )}
           </FormControl>
 
           <FormControl>
-            <FormLabel>Жанр</FormLabel>
-            <RadioGroup 
+            <FormLabel color="pink.600">Жанр</FormLabel>
+            <Controller
               name="genre"
-              value={formData.genre}
-              onChange={(value) => setFormData({...formData, genre: value})}
-            >
-              <HStack spacing={4} wrap="wrap">
-                {genres.map(genre => (
-                  <Radio key={genre} value={genre} size="lg">{genre}</Radio>
-                ))}
-              </HStack>
-            </RadioGroup>
+              control={control}
+              render={({ field }) => (
+                <RadioGroup {...field}>
+                  <HStack spacing={4} wrap="wrap">
+                    {genres.map(genre => (
+                      <Radio 
+                        key={genre} 
+                        value={genre}
+                        colorScheme="pink"
+                        borderColor="pink.200"
+                      >
+                        {genre}
+                      </Radio>
+                    ))}
+                  </HStack>
+                </RadioGroup>
+              )}
+            />
           </FormControl>
 
           <FormControl isInvalid={!!errors.duration}>
-            <FormLabel>Длительность (минут)</FormLabel>
-            <Input
-              type="number"
+            <FormLabel color="pink.600">Длительность (минут)</FormLabel>
+            <Controller
               name="duration"
-              value={formData.duration}
-              onChange={handleChange}
-              placeholder="Например: 136"
-              size="lg"
+              control={control}
+              rules={{ 
+                required: 'Обязательное поле',
+                min: { value: 1, message: 'Минимум 1 минута' }
+              }}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  type="number"
+                  placeholder="Например: 136"
+                  focusBorderColor="pink.400"
+                />
+              )}
             />
             {errors.duration && (
               <Alert status="error" mt={2} borderRadius="md">
                 <AlertIcon />
-                {errors.duration}
+                {errors.duration.message}
               </Alert>
             )}
           </FormControl>
 
           <FormControl>
-            <FormLabel>Описание</FormLabel>
-            <Textarea
+            <FormLabel color="pink.600">Описание</FormLabel>
+            <Controller
               name="description"
-              value={formData.description}
-              onChange={handleChange}
-              placeholder="Описание фильма..."
-              rows={5}
-              size="lg"
+              control={control}
+              render={({ field }) => (
+                <Textarea
+                  {...field}
+                  placeholder="Описание фильма..."
+                  rows={5}
+                  focusBorderColor="pink.400"
+                />
+              )}
             />
           </FormControl>
 
           <FormControl>
-            <FormLabel>Постер (URL)</FormLabel>
-            <Input
+            <FormLabel color="pink.600">Постер (URL)</FormLabel>
+            <Controller
               name="poster"
-              value={formData.poster}
-              onChange={handleChange}
-              placeholder="Ссылка на изображение"
-              size="lg"
+              control={control}
+              render={({ field }) => (
+                <Input
+                  {...field}
+                  placeholder="Ссылка на изображение"
+                  focusBorderColor="pink.400"
+                />
+              )}
             />
           </FormControl>
 
@@ -251,17 +225,17 @@ export default function EditMovie({ movies, onUpdate }) {
               variant="outline"
               onClick={() => navigate(`/movie/${id}`)}
               leftIcon={<FaTrash />}
-              colorScheme="red"
-              size="lg"
+              color="pink.600"
+              borderColor="pink.200"
             >
               Отменить
             </Button>
             <Button 
-              colorScheme="blue" 
+              colorScheme="pink" 
               type="submit" 
               leftIcon={<FaSave />}
-              size="lg"
-              flex="1"
+              bg="pink.500"
+              _hover={{ bg: 'pink.600' }}
             >
               Сохранить изменения
             </Button>

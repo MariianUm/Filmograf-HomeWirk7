@@ -1,3 +1,4 @@
+// MovieCard.jsx
 import { 
   Box, Heading, Text, Badge, Flex, IconButton,
   Image, Stack, useDisclosure
@@ -41,6 +42,7 @@ export default function MovieCard({ movie, onToggleFavorite }) {
           bg="whiteAlpha.800"
           borderRadius="full"
           onClick={() => onToggleFavorite(movie.id)}
+          colorScheme="pink" // Изменено на розовый
         />
       </Box>
 
@@ -51,11 +53,7 @@ export default function MovieCard({ movie, onToggleFavorite }) {
         
         <Stack direction="row" spacing={2} mb={3}>
           <Badge 
-            colorScheme={
-              movie.genre === 'Боевик' ? 'red' : 
-              movie.genre === 'Драма' ? 'blue' :
-              movie.genre === 'Комедия' ? 'yellow' : 'gray'
-            }
+            colorScheme="pink" // Изменено на розовый
           >
             {movie.genre}
           </Badge>
@@ -66,15 +64,14 @@ export default function MovieCard({ movie, onToggleFavorite }) {
           {[...Array(5)].map((_, i) => (
             <FaStar 
               key={i} 
-              color={i < movie.rating ? '#ffc107' : '#e4e5e9'} 
-              size={14}
+              color={i < movie.rating ? '#ff69b4' : '#e4e5e9'} // Розовый акцент
             />
           ))}
         </Flex>
 
         <Flex justify="space-between" align="center">
           <Link to={`/movie/${movie.id}`}>
-            <Text color="blue.500" fontWeight="medium">Подробнее</Text>
+            <Text color="pink.500" fontWeight="medium">Подробнее</Text> {/* Изменено на розовый */}
           </Link>
         </Flex>
       </Box>
