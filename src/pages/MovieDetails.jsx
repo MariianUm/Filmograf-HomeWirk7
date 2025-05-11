@@ -1,18 +1,9 @@
 import { 
-  Box, 
-  Heading, 
-  Text, 
-  Badge, 
-  Flex, 
-  Button,
-  Image,
-  VStack,
-  HStack,
-  useToast,
-  Spinner
+  Box, Heading, Text, Badge, Flex, Button,
+  Image, VStack, HStack, useToast, Spinner
 } from '@chakra-ui/react';
 import { FaHeart, FaRegHeart, FaEdit, FaTrash, FaArrowLeft } from 'react-icons/fa';
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 export default function MovieDetails({ movies, onToggleFavorite, onDelete }) {
@@ -23,24 +14,30 @@ export default function MovieDetails({ movies, onToggleFavorite, onDelete }) {
   const [movie, setMovie] = useState(null);
 
   useEffect(() => {
-    // Имитация загрузки данных
-    const timer = setTimeout(() => {
-      const foundMovie = movies.find(m => m.id === Number(id));
-      setMovie(foundMovie);
-      setIsLoading(false);
-    }, 500);
+    const foundMovie = movies.find(m => m.id === Number(id));
+    
+    if (!foundMovie) {
+      toast({
+        title: 'Фильм не найден',
+        description: 'Запрошенный фильм не существует',
+        status: 'error',
+        duration: 3000,
+      });
+      navigate('/');
+      return;
+    }
 
-    return () => clearTimeout(timer);
-  }, [id, movies]);
+    setMovie(foundMovie);
+    setIsLoading(false);
+  }, [id, movies, navigate, toast]);
 
   const handleDelete = () => {
     onDelete(movie.id);
     toast({
       title: 'Фильм удалён',
-      description: `${movie.title} успешно удалён из вашей коллекции`,
+      description: `${movie.title} успешно удалён`,
       status: 'success',
       duration: 3000,
-      isClosable: true,
     });
     navigate('/');
   };
@@ -48,37 +45,15 @@ export default function MovieDetails({ movies, onToggleFavorite, onDelete }) {
   if (isLoading) {
     return (
       <Flex justify="center" align="center" minH="50vh">
-        <Spinner size="xl" color="blue.500" />
+        <Spinner size="xl" color="pink.500" thickness="4px" />
       </Flex>
-    );
-  }
-
-  if (!movie) {
-    return (
-      <Box textAlign="center" py={20} px={4}>
-        <Heading as="h2" size="lg" mb={4} color="gray.700">
-          Фильм не найден
-        </Heading>
-        <Text fontSize="lg" mb={6} color="gray.500">
-          Запрошенный фильм не существует или был удалён
-        </Text>
-        <Button 
-          as={Link} 
-          to="/" 
-          colorScheme="pink"
-          size="lg"
-          leftIcon={<FaArrowLeft />}
-        >
-          Вернуться к списку фильмов
-        </Button>
-      </Box>
     );
   }
 
   return (
     <Box py={8} px={{ base: 4, md: 8 }} maxW="1200px" mx="auto">
       <Flex justify="space-between" align="center" mb={8} flexWrap="wrap" gap={4}>
-        <Heading as="h1" size="xl" flex="1" minW="200px">
+        <Heading as="h1" size="xl" flex="1" minW="200px" color="pink.600">
           {movie.title} ({movie.year})
         </Heading>
         <Button
@@ -121,6 +96,7 @@ export default function MovieDetails({ movies, onToggleFavorite, onDelete }) {
             mb={8} 
             whiteSpace="pre-line"
             lineHeight="1.6"
+            color="gray.600"
           >
             {movie.description || 'Описание отсутствует'}
           </Text>
@@ -144,11 +120,11 @@ export default function MovieDetails({ movies, onToggleFavorite, onDelete }) {
               Удалить фильм
             </Button>
             <Button 
-              as={Link} 
-              to="/" 
+              onClick={() => navigate('/')}
               variant="ghost" 
               leftIcon={<FaArrowLeft />}
               size="lg"
+              color="pink.600"
             >
               Назад к списку
             </Button>

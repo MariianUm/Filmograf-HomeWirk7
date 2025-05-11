@@ -1,9 +1,9 @@
-import { useState } from 'react';
 import { 
   Box, Heading, SimpleGrid, Flex, Button, Select, 
   Text, Badge, InputGroup, InputLeftElement, Input
 } from '@chakra-ui/react';
 import { FaSearch, FaStar } from 'react-icons/fa';
+import { useState } from 'react';
 import MovieCard from '../components/MovieCard';
 
 export default function Home({ movies, onToggleFavorite }) {
@@ -26,7 +26,7 @@ export default function Home({ movies, onToggleFavorite }) {
 
   return (
     <Box py={8} px={{ base: 4, md: 8 }}>
-      <Heading as="h1" size="xl" mb={8} textAlign="center">
+      <Heading as="h1" size="xl" mb={8} textAlign="center" color="pink.600">
         Фильмы
       </Heading>
 
@@ -39,6 +39,7 @@ export default function Home({ movies, onToggleFavorite }) {
             placeholder="Поиск фильмов..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            focusBorderColor="pink.400"
           />
         </InputGroup>
 
@@ -47,6 +48,7 @@ export default function Home({ movies, onToggleFavorite }) {
             value={filterGenre}
             onChange={(e) => setFilterGenre(e.target.value)}
             w="200px"
+            focusBorderColor="pink.400"
           >
             {['Все', ...new Set(movies.map(movie => movie.genre))].map(genre => (
               <option key={genre} value={genre}>{genre}</option>
@@ -57,6 +59,7 @@ export default function Home({ movies, onToggleFavorite }) {
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
             w="200px"
+            focusBorderColor="pink.400"
           >
             <option value="newest">Сначала новые</option>
             <option value="oldest">Сначала старые</option>
@@ -76,9 +79,14 @@ export default function Home({ movies, onToggleFavorite }) {
           ))}
         </SimpleGrid>
       ) : (
-        <Text textAlign="center" fontSize="xl" color="gray.500" mt={20}>
-          Фильмы не найдены. Попробуйте изменить параметры поиска.
-        </Text>
+        <Box textAlign="center" p={10} bg="white" borderRadius="lg" boxShadow="md">
+          <Heading as="h2" size="md" mb={4} color="gray.600">
+            Фильмы не найдены
+          </Heading>
+          <Text color="gray.500">
+            Попробуйте изменить параметры поиска или добавить новый фильм
+          </Text>
+        </Box>
       )}
     </Box>
   );
