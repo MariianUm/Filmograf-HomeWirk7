@@ -1,4 +1,3 @@
-// EditMovie.jsx
 import { 
   Box, 
   Heading, 
@@ -31,42 +30,68 @@ export default function EditMovie({ movies, onUpdate }) {
   const { 
     control,
     handleSubmit,
-    formState: { errors },
-    reset
+    formState: { errors, isSubmitting },
+    reset,
+    setError
   } = useForm();
 
   const movie = movies.find(m => m.id === Number(id));
 
   useEffect(() => {
-    if (movie) {
-      reset({
-        title: movie.title,
-        genre: movie.genre,
-        duration: movie.duration.replace(' мин.', ''),
-        description: movie.description,
-        poster: movie.poster
+    if (!movie) {
+      toast({
+        title: 'Ошибка',
+        description: 'Фильм не найден',
+        status: 'error',
+        duration: 3000,
+      });
+      navigate('/');
+      return;
+    }
+
+    // Парсим длительность из формата "136 мин."
+    const durationValue = parseInt(movie.duration) || 0;
+    
+    reset({
+      title: movie.title,
+      genre: movie.genre,
+      duration: durationValue,
+      description: movie.description,
+      poster: movie.poster
+    });
+  }, [movie, reset, navigate, toast]);
+
+  const onSubmit = async (data) => {
+    try {
+      const updatedMovie = {
+        ...data,
+        id: Number(id),
+        duration: `${data.duration} мин.`,
+        isFavorite: movie.isFavorite,
+        year: movie.year,
+        rating: movie.rating
+      };
+
+      await onUpdate(updatedMovie);
+
+      toast({
+        title: 'Фильм обновлен',
+        description: `${updatedMovie.title} успешно сохранен`,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      navigate(`/movie/${id}`);
+    } catch (error) {
+      toast({
+        title: 'Ошибка обновления',
+        description: error.message || 'Не удалось обновить фильм',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
       });
     }
-  }, [movie, reset]);
-
-  const onSubmit = (data) => {
-    onUpdate({
-      ...data,
-      id: Number(id),
-      duration: `${data.duration} мин.`,
-      isFavorite: movie.isFavorite,
-      year: movie.year
-    });
-
-    toast({
-      title: 'Фильм обновлен',
-      description: `${data.title} успешно сохранен`,
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
-
-    navigate(`/movie/${id}`);
   };
 
   if (!movie) {
@@ -79,8 +104,7 @@ export default function EditMovie({ movies, onUpdate }) {
           Невозможно редактировать — фильм не существует или был удалён
         </Text>
         <Button 
-          as="a"
-          href="/"
+          onClick={() => navigate('/')}
           colorScheme="pink"
           size="lg"
           leftIcon={<FaArrowLeft />}
@@ -103,6 +127,7 @@ export default function EditMovie({ movies, onUpdate }) {
           variant="outline"
           color="pink.600"
           borderColor="pink.200"
+          isDisabled={isSubmitting}
         >
           Назад
         </Button>
@@ -122,12 +147,19 @@ export default function EditMovie({ movies, onUpdate }) {
             <Controller
               name="title"
               control={control}
-              rules={{ required: 'Обязательное поле' }}
+              rules={{ 
+                required: 'Обязательное поле',
+                minLength: {
+                  value: 2,
+                  message: 'Минимум 2 символа'
+                }
+              }}
               render={({ field }) => (
                 <Input
                   {...field}
                   placeholder="Например: Матрица"
                   focusBorderColor="pink.400"
+                  isDisabled={isSubmitting}
                 />
               )}
             />
@@ -153,6 +185,7 @@ export default function EditMovie({ movies, onUpdate }) {
                         value={genre}
                         colorScheme="pink"
                         borderColor="pink.200"
+                        isDisabled={isSubmitting}
                       >
                         {genre}
                       </Radio>
@@ -170,7 +203,14 @@ export default function EditMovie({ movies, onUpdate }) {
               control={control}
               rules={{ 
                 required: 'Обязательное поле',
-                min: { value: 1, message: 'Минимум 1 минута' }
+                min: { 
+                  value: 1, 
+                  message: 'Минимум 1 минута' 
+                },
+                max: {
+                  value: 300,
+                  message: 'Максимум 300 минут'
+                }
               }}
               render={({ field }) => (
                 <Input
@@ -178,6 +218,7 @@ export default function EditMovie({ movies, onUpdate }) {
                   type="number"
                   placeholder="Например: 136"
                   focusBorderColor="pink.400"
+                  isDisabled={isSubmitting}
                 />
               )}
             />
@@ -200,6 +241,7 @@ export default function EditMovie({ movies, onUpdate }) {
                   placeholder="Описание фильма..."
                   rows={5}
                   focusBorderColor="pink.400"
+                  isDisabled={isSubmitting}
                 />
               )}
             />
@@ -215,6 +257,7 @@ export default function EditMovie({ movies, onUpdate }) {
                   {...field}
                   placeholder="Ссылка на изображение"
                   focusBorderColor="pink.400"
+                  isDisabled={isSubmitting}
                 />
               )}
             />
@@ -224,18 +267,20 @@ export default function EditMovie({ movies, onUpdate }) {
             <Button
               variant="outline"
               onClick={() => navigate(`/movie/${id}`)}
-              leftIcon={<FaTrash />}
               color="pink.600"
               borderColor="pink.200"
+              isDisabled={isSubmitting}
             >
               Отменить
             </Button>
             <Button 
               colorScheme="pink" 
               type="submit" 
-              leftIcon={<FaSave />}
+              leftIcon={isSubmitting ? <Spinner size="sm" /> : <FaSave />}
               bg="pink.500"
               _hover={{ bg: 'pink.600' }}
+              isLoading={isSubmitting}
+              loadingText="Сохранение..."
             >
               Сохранить изменения
             </Button>

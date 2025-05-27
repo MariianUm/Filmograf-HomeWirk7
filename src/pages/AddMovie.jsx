@@ -1,4 +1,3 @@
-// AddMovie.jsx
 import { 
   Box, 
   Heading, 
@@ -12,7 +11,10 @@ import {
   Radio,
   HStack,
   useToast,
-  Flex
+  Flex,
+  Alert,
+  AlertIcon,
+  Spinner
 } from '@chakra-ui/react';
 import { FaPlus } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
@@ -21,7 +23,12 @@ import { useForm, Controller } from 'react-hook-form';
 const genres = ['Боевик', 'Триллер', 'Комедия', 'Драма'];
 
 export default function AddMovie({ onAddMovie }) {
-  const { register, handleSubmit, control, formState: { errors } } = useForm({
+  const { 
+    register, 
+    handleSubmit, 
+    control, 
+    formState: { errors, isSubmitting } 
+  } = useForm({
     defaultValues: {
       title: '',
       genre: 'Боевик',
@@ -34,32 +41,34 @@ export default function AddMovie({ onAddMovie }) {
   const toast = useToast();
   const navigate = useNavigate();
 
-  const onSubmit = (data) => {
-    if (!data.title || !data.duration) {
+  const onSubmit = async (data) => {
+    try {
+      const newMovie = {
+        ...data,
+        duration: `${data.duration} мин.`,
+        year: new Date().getFullYear()
+      };
+
+      await onAddMovie(newMovie);
+
       toast({
-        title: 'Ошибка',
-        description: 'Заполните обязательные поля',
-        status: 'error',
+        title: 'Фильм добавлен',
+        description: `${newMovie.title} успешно добавлен в коллекцию`,
+        status: 'success',
         duration: 3000,
         isClosable: true,
       });
-      return;
+
+      navigate('/');
+    } catch (error) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось добавить фильм',
+        status: 'error',
+        duration: 5000,
+        isClosable: true,
+      });
     }
-
-    onAddMovie({
-      ...data,
-      duration: `${data.duration} мин.`,
-      year: new Date().getFullYear()
-    });
-
-    toast({
-      title: 'Фильм добавлен',
-      status: 'success',
-      duration: 3000,
-      isClosable: true,
-    });
-
-    navigate('/');
   };
 
   return (
@@ -68,15 +77,35 @@ export default function AddMovie({ onAddMovie }) {
         Добавить фильм
       </Heading>
 
-      <Box as="form" onSubmit={handleSubmit(onSubmit)} bg="white" p={6} borderRadius="lg" boxShadow="md">
+      <Box 
+        as="form" 
+        onSubmit={handleSubmit(onSubmit)} 
+        bg="white" 
+        p={6} 
+        borderRadius="lg" 
+        boxShadow="md"
+      >
         <VStack spacing={6}>
           <FormControl isInvalid={!!errors.title}>
             <FormLabel color="pink.600">Название фильма</FormLabel>
             <Input
-              {...register('title', { required: 'Обязательное поле' })}
+              {...register('title', { 
+                required: 'Обязательное поле',
+                minLength: {
+                  value: 2,
+                  message: 'Минимум 2 символа'
+                }
+              })}
               placeholder="Например: Матрица"
               focusBorderColor="pink.400"
+              disabled={isSubmitting}
             />
+            {errors.title && (
+              <Alert status="error" mt={2} borderRadius="md">
+                <AlertIcon />
+                {errors.title.message}
+              </Alert>
+            )}
           </FormControl>
 
           <FormControl>
@@ -93,6 +122,7 @@ export default function AddMovie({ onAddMovie }) {
                         value={genre}
                         colorScheme="pink"
                         borderColor="pink.200"
+                        isDisabled={isSubmitting}
                       >
                         {genre}
                       </Radio>
@@ -109,11 +139,25 @@ export default function AddMovie({ onAddMovie }) {
               type="number"
               {...register('duration', { 
                 required: 'Обязательное поле',
-                min: { value: 1, message: 'Минимум 1 минута' }
+                min: { 
+                  value: 1, 
+                  message: 'Минимум 1 минута' 
+                },
+                max: {
+                  value: 300,
+                  message: 'Максимум 300 минут'
+                }
               })}
               placeholder="Например: 136"
               focusBorderColor="pink.400"
+              disabled={isSubmitting}
             />
+            {errors.duration && (
+              <Alert status="error" mt={2} borderRadius="md">
+                <AlertIcon />
+                {errors.duration.message}
+              </Alert>
+            )}
           </FormControl>
 
           <FormControl>
@@ -123,6 +167,7 @@ export default function AddMovie({ onAddMovie }) {
               placeholder="Описание фильма..."
               rows={5}
               focusBorderColor="pink.400"
+              disabled={isSubmitting}
             />
           </FormControl>
 
@@ -136,6 +181,7 @@ export default function AddMovie({ onAddMovie }) {
                   {...field}
                   placeholder="Ссылка на изображение"
                   focusBorderColor="pink.400"
+                  disabled={isSubmitting}
                 />
               )}
             />
@@ -147,15 +193,18 @@ export default function AddMovie({ onAddMovie }) {
               onClick={() => navigate('/')}
               color="pink.600"
               borderColor="pink.200"
+              isDisabled={isSubmitting}
             >
               Отмена
             </Button>
             <Button 
               colorScheme="pink" 
               type="submit" 
-              leftIcon={<FaPlus />}
+              leftIcon={isSubmitting ? <Spinner size="sm" /> : <FaPlus />}
               bg="pink.500"
               _hover={{ bg: 'pink.600' }}
+              isLoading={isSubmitting}
+              loadingText="Добавление..."
             >
               Добавить фильм
             </Button>

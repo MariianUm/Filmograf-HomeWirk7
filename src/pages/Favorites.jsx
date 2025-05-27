@@ -44,7 +44,7 @@ export default function Favorites({ movies, onToggleFavorite, onDelete }) {
                     {movie.title} ({movie.year})
                   </Heading>
                   <HStack spacing={2} mb={2}>
-                    <Badge colorScheme="blue">{movie.genre}</Badge>
+                    <Badge colorScheme="pink">{movie.genre}</Badge>
                     <Text fontSize="sm">{movie.duration}</Text>
                   </HStack>
                   <Flex align="center">

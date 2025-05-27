@@ -104,21 +104,33 @@ const mockMovies = [
 
 const API = {
   async getMovies() {
-    try {
-      // Имитация задержки сервера
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Имитация успешного ответа
-      return { 
-        status: 200,
-        data: mockMovies 
-      };
-      
-      // Имитация ошибки (раскомментируйте для теста)
-      // throw new Error('Сервер недоступен');
-    } catch (error) {
-      throw error;
-    }
+    return new Promise((resolve) => {
+      setTimeout(() => resolve({ data: movies }), 500);
+    });
+  },
+
+  async createMovie(newMovie) {
+    return new Promise((resolve) => {
+      const movie = { ...newMovie, id: Date.now() };
+      movies.push(movie);
+      setTimeout(() => resolve({ data: movie }), 500);
+    });
+  },
+
+  async updateMovie(id, updatedData) {
+    return new Promise((resolve) => {
+      movies = movies.map(movie => 
+        movie.id === id ? { ...movie, ...updatedData } : movie
+      );
+      setTimeout(() => resolve({ data: movies.find(m => m.id === id) }), 500);
+    });
+  },
+
+  async deleteMovie(id) {
+    return new Promise((resolve) => {
+      movies = movies.filter(movie => movie.id !== id);
+      setTimeout(() => resolve({ data: { id } }), 500);
+    });
   }
 };
 

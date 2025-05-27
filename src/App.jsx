@@ -31,34 +31,52 @@ function App() {
     fetchMovies();
   }, []);
 
-  const toggleFavorite = (id) => {
-    setMovies(movies.map(movie => 
-      movie.id === id ? { ...movie, isFavorite: !movie.isFavorite } : movie
-    ));
-  };
-
-  const addMovie = (newMovie) => {
-    const movie = {
-      ...newMovie,
-      id: Date.now(),
-      isFavorite: false,
-      poster: newMovie.poster || '/images/default.jpg',
-      rating: 3
-    };
-    setMovies([...movies, movie]);
-  };
-
-  const updateMovie = (updatedMovie) => {
-    setMovies(movies.map(movie => 
-      movie.id === updatedMovie.id ? updatedMovie : movie
-    ));
-  };
-
-  const deleteMovie = (id) => {
-    if (window.confirm('Вы уверены, что хотите удалить этот фильм?')) {
-      setMovies(movies.filter(movie => movie.id !== id));
+  const toggleFavorite = async (id) => {
+    try {
+      const movie = movies.find(m => m.id === id);
+      const response = await API.updateMovie(id, { 
+        isFavorite: !movie.isFavorite 
+      });
+      setMovies(movies.map(m => m.id === id ? response.data : m));
+    } catch (err) {
+      console.error('Ошибка обновления:', err);
     }
   };
+
+  const addMovie = async (newMovie) => {
+    try {
+      const response = await API.createMovie({
+        ...newMovie,
+        isFavorite: false,
+        poster: newMovie.poster || '/images/default.jpg',
+        rating: 3
+      });
+      setMovies([...movies, response.data]);
+    } catch (err) {
+      console.error('Ошибка создания:', err);
+      throw err;
+    }
+  };
+
+  const updateMovie = async (updatedMovie) => {
+    try {
+      const response = await API.updateMovie(updatedMovie.id, updatedMovie);
+      setMovies(movies.map(m => m.id === updatedMovie.id ? response.data : m));
+    } catch (err) {
+      console.error('Ошибка обновления:', err);
+      throw err;
+    }
+  };
+
+  const deleteMovie = async (id) => {
+    try {
+      await API.deleteMovie(id);
+      setMovies(movies.filter(movie => movie.id !== id));
+    } catch (err) {
+      console.error('Ошибка удаления:', err);
+    }
+  };
+
 
   if (loading) {
     return (
